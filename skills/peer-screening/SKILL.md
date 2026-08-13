@@ -33,7 +33,8 @@ description: 상장사 Peer Group(비교기업) 선정을 모집단→계층→�
 | 주식수 | mydart `get_periodic_report_item` "주식의 총수 현황" | corp_codes 목록으로 한 번에 |
 | 사업내용 훑기 | dcfpeer 모집단의 요약 / `get_business_content` | 스냅샷 요약의 매출비중은 **3분기 누계** — 연간으로 인용하지 않는다 |
 | 사업내용 원문·최신 | mydart `search_disclosures` + `get_disclosure_document` | 신규상장사 등 캐시에 없는 회사 |
-| 기준일 주가·베타 | dcfpeer `valuation_get_data` | **재무 필드(ibd·nci·pretaxIncome)는 쓰지 않는다** — 기준일과 무관하게 연말 수치가 섞일 수 있다. 재무는 전부 mydart |
+| 기준일 종가 | dcfpeer `get_close_as_of` | 종가만 필요할 때 **반드시 이것** — `valuation_get_data`는 베타·재무·XBRL을 함께 돌려 타임아웃이 난다 |
+| 베타 | dcfpeer `valuation_get_data` 또는 `compute_beta` | 필요할 때만. **재무 필드(ibd·nci·pretaxIncome)는 쓰지 않는다** — 재무는 전부 mydart |
 
 ## 2. 절차
 
@@ -63,8 +64,10 @@ description: 상장사 Peer Group(비교기업) 선정을 모집단→계층→�
 ### ⑤ 기준일 시가총액
 ④ 통과 후보에 대해서만 산정한다 (모집단 전체를 조회하면 호출이 낭비된다).
 
-- **주가**: dcfpeer `valuation_get_data` — 기준일 종가(`price`)와 실제 거래일
-  (`priceDate`)만 쓴다. 재무 필드는 버린다. 10개씩 배치.
+- **주가**: dcfpeer `get_close_as_of` — 기준일 종가와 실제 거래일을 준다.
+  최대 30개씩 배치. `failed`로 돌아온 종목은 "확인 불가"로 표시한다.
+  (`valuation_get_data`로 종가를 받지 않는다 — 베타·재무·XBRL이 딸려와
+  대형 연결법인에서 타임아웃이 난다.)
 - **유통주식수**: mydart `get_periodic_report_item` "주식의 총수 현황" —
   기준일이 속한 분기의 보고서로. 발행총수가 아니라 **유통주식수**를 쓴다.
 - **시가총액 = 기준일 종가 × 유통주식수.** 주가와 주식수의 출처 시점이 다르므로
