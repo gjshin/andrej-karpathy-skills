@@ -26,7 +26,8 @@ description: 상장사 Peer Group(비교기업) 선정을 모집단→계층→�
 
 | 용도 | 도구 | 주의 |
 |---|---|---|
-| 모집단 (현재 시점) | dcfpeer `peergroup_get_population_latest` | 재현 안 됨 → 조회일 기록 |
+| 모집단 (현재 시점) | **1순위: 로컬 gpcm `list_krx_companies`** (데스크톱에 있을 때) | 이 PC에서 KRX 직접 조회 — 상폐 반영, 주요제품 포함. 재현 안 됨 → 조회일 기록 |
+| 모집단 (현재 시점, 로컬 도구 없을 때) | dcfpeer `peergroup_get_population_latest` | KRX가 클라우드를 막으면 저장 명단으로 폴백한다 — 응답 meta에 `fallback`이 있으면 **명단이 빌드 시점**임을 기록에 남긴다 |
 | 모집단 (소급) | dcfpeer `peergroup_get_population` | `snapshotDate`·`populationHash` 기록. 명단은 빌드 시점 기준 — 그 이후 상장폐지 미반영을 명시 |
 | 종목코드 → 고유번호 | mydart `search_company` | **목록으로 한 번에.** `not_found`는 반드시 사용자에게 보고 |
 | 매출·영업이익·자산·자본 | mydart `compare_financials` | 10개씩 나눠 호출 |
